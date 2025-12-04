@@ -151,91 +151,105 @@
 <Header />
 
 <main class="font-f1 flex-auto p-4">
-	<div class=" mx-auto grid w-full max-w-2xl grid-cols-1 justify-items-center gap-4">
-		<h2 class="flex w-full items-center">
+	<div class="mx-auto w-full max-w-7xl">
+		<h2 class="mb-6 text-center text-2xl font-bold">
 			{m['home.heading']()}
 		</h2>
-		<form
-			oninput={onFormChange}
-			onsubmit={(event) => event.preventDefault()}
-			autocomplete="off"
-			class="flex w-full flex-col gap-4"
-		>
-			<label class="flex flex-col">
-				<span>{m['home.pick_a_driver']()}</span>
-				<Select value={driver?.key ?? ''} name="driver">
-					<option value="">&ndash;</option>
-					{#each drivers as d (d.key)}
-						<option value={d.key} selected={driver?.key === d.key}>
-							{@render name(d.value.name)}
-						</option>
-					{/each}
-				</Select>
-			</label>
-
-			<div class="flex flex-col gap-2">
-				<span>{m['home.messages']()}</span>
-				{#each messages as message, i}
-					<div class="flex flex-row items-center gap-2">
-						<Select
-							value={message.type}
-							name="messages"
-							aria-label={m['home.aria.pick_message_type']()}
-						>
-							<option value="driver" selected={message.type === 'driver'}>
-								{m['home.messages_driver']()}
-							</option>
-							<option value="team" selected={message.type === 'team'}>
-								{m['home.messages_team']()}
-							</option>
+		
+		<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+			<!-- Left column: User inputs -->
+			<div class="flex flex-col gap-4">
+				<form
+					oninput={onFormChange}
+					onsubmit={(event) => event.preventDefault()}
+					autocomplete="off"
+					class="flex w-full flex-col gap-4"
+				>
+					<label class="flex flex-col">
+						<span class="mb-2 font-semibold">{m['home.pick_a_driver']()}</span>
+						<Select value={driver?.key ?? ''} name="driver">
+							<option value="">&ndash;</option>
+							{#each drivers as d (d.key)}
+								<option value={d.key} selected={driver?.key === d.key}>
+									{@render name(d.value.name)}
+								</option>
+							{/each}
 						</Select>
-						<span>:</span>
-						<div
-							class="flex flex-auto items-center overflow-clip rounded-xl bg-red-700 text-white outline-2 outline-offset-2 outline-red-700 outline-none has-focus-visible:outline-solid"
-						>
-							<input
-								type="text"
-								value={message.text}
-								name="messages"
-								class="w-full appearance-none bg-inherit p-2 outline-none"
-								aria-label={m['home.aria.enter_message']()}
-								{@attach init}
-							/>
-							{#if i !== 0}
-								<button
-									class="group p-2 pe-3 outline-none"
-									type="button"
-									onclick={() => removeMessage(i)}
+					</label>
+
+					<div class="flex flex-col gap-2">
+						<span class="font-semibold">{m['home.messages']()}</span>
+						{#each messages as message, i}
+							<div class="flex flex-row items-center gap-2">
+								<Select
+									value={message.type}
+									name="messages"
+									aria-label={m['home.aria.pick_message_type']()}
 								>
-									<span
-										class="flex rounded-full leading-3.5 outline-1 outline-offset-5 outline-white outline-none group-focus-visible:outline-solid"
-									>
-										X
-									</span>
-								</button>
-							{/if}
-						</div>
+									<option value="driver" selected={message.type === 'driver'}>
+										{m['home.messages_driver']()}
+									</option>
+									<option value="team" selected={message.type === 'team'}>
+										{m['home.messages_team']()}
+									</option>
+								</Select>
+								<span>:</span>
+								<div
+									class="flex flex-auto items-center overflow-clip rounded-xl bg-red-700 text-white outline-2 outline-offset-2 outline-red-700 outline-none has-focus-visible:outline-solid"
+								>
+									<input
+										type="text"
+										value={message.text}
+										name="messages"
+										class="w-full appearance-none bg-inherit p-2 outline-none"
+										aria-label={m['home.aria.enter_message']()}
+										{@attach init}
+									/>
+									{#if i !== 0}
+										<button
+											class="group p-2 pe-3 outline-none"
+											type="button"
+											onclick={() => removeMessage(i)}
+										>
+											<span
+												class="flex rounded-full leading-3.5 outline-1 outline-offset-5 outline-white outline-none group-focus-visible:outline-solid"
+											>
+												X
+											</span>
+										</button>
+									{/if}
+								</div>
+							</div>
+						{/each}
 					</div>
-				{/each}
+
+					<Button type="button" onclick={() => addMessage()}>
+						{m['home.add_message']()}
+					</Button>
+				</form>
 			</div>
 
-			<Button type="button" onclick={() => addMessage()}>
-				{m['home.add_message']()}
-			</Button>
-		</form>
+			<!-- Right column: Preview -->
+			<div class="flex flex-col items-center justify-start gap-4 lg:sticky lg:top-4 lg:self-start">
+				{#if driver != null}
+					<div class="border border-red-300 dark:border-gray-700 bg-white dark:bg-black p-2">
+						<RadioBox driver={driver.value} bind:element={output}>
+							{#each messages as message}
+								<RadioBoxMessage type={message.type} text={message.text} />
+							{/each}
+						</RadioBox>
+					</div>
 
-		{#if driver != null}
-			<hr class="w-full border-gray-300 dark:border-gray-700" />
-			<div class="border border-red-300 dark:border-gray-700">
-				<RadioBox driver={driver.value} bind:element={output}>
-					{#each messages as message}
-						<RadioBoxMessage type={message.type} text={message.text} />
-					{/each}
-				</RadioBox>
+					<CopyButton element={output} {onCopy} {onError} />
+				{:else}
+					<div class="flex h-full min-h-[400px] items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700">
+						<p class="text-center text-gray-400 dark:text-gray-500">
+							Select a driver to see preview
+						</p>
+					</div>
+				{/if}
 			</div>
-
-			<CopyButton element={output} {onCopy} {onError} />
-		{/if}
+		</div>
 	</div>
 </main>
 
