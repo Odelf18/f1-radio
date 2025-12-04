@@ -24,7 +24,9 @@
 	},
 	"copy_button": {
 		"copy": "Copy",
-		"copying": "Copying"
+		"copying": "Copying",
+		"download": "Download",
+		"downloading": "Downloading"
 	},
 	"blog": {
 		"title": "Blog",

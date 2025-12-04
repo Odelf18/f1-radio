@@ -57,20 +57,23 @@
 
 	function addMessage() {
 		const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+		const newMessages = [...messages];
+		
 		if (lastMessage?.type === 'driver') {
-			messages.push({ type: 'team', text: '' });
+			newMessages.push({ type: 'team', text: '' });
 		} else if (lastMessage?.type === 'team') {
-			messages.push({ type: 'driver', text: '' });
+			newMessages.push({ type: 'driver', text: '' });
 		} else {
-			messages.push({ type: 'driver', text: '' });
+			newMessages.push({ type: 'driver', text: '' });
 		}
 
-		setQuery({ messages });
+		setQuery({ messages: newMessages });
 	}
 
 	function removeMessage(index: number) {
-		messages.splice(index, 1);
-		setQuery({ messages });
+		const newMessages = [...messages];
+		newMessages.splice(index, 1);
+		setQuery({ messages: newMessages });
 	}
 
 	let mounted = false;

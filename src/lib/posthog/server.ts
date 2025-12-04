@@ -2,10 +2,29 @@ import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
 import type { Handle } from '@sveltejs/kit';
 import { PostHog } from 'posthog-node';
 
+let posthogClient: PostHog | null = null;
+
+// Get PUBLIC_POSTHOG_KEY - will be empty string if not set in .env
+// SvelteKit makes env vars available at build time
+const posthogKey = PUBLIC_POSTHOG_KEY || '';
+
 export function createPosthogClient() {
-	return new PostHog(PUBLIC_POSTHOG_KEY, {
-		host: 'https://us.i.posthog.com'
-	});
+	// If we don't have a key (empty string), return a no-op client
+	if (!posthogKey || posthogKey.trim() === '') {
+		return {
+			captureException: () => {},
+			shutdown: async () => {}
+		} as unknown as PostHog;
+	}
+	
+	// Create client if we don't have one yet
+	if (!posthogClient) {
+		posthogClient = new PostHog(posthogKey, {
+			host: 'https://us.i.posthog.com'
+		});
+	}
+	
+	return posthogClient;
 }
 
 export const posthogHandle: Handle = async function ({ event, resolve }) {
