@@ -2,23 +2,34 @@
 	import { m } from '$lib/paraglide/messages';
 	import domtoimage from 'dom-to-image';
 	import Button from './Button.svelte';
+	import { defaultImageConfig, type ImageFormat } from '$lib/config/image';
 
 	interface Props {
 		element: HTMLElement | undefined;
 		onCopy: (duration: number) => void;
 		onError: (error: unknown, duration: number) => void;
+		// Image quality settings
+		scale?: number; // Scale factor for higher resolution (default: 3)
+		format?: ImageFormat; // Image format: 'png' or 'jpeg' (default: 'png')
+		quality?: number; // JPEG quality 0-1 (default: 0.92, only used for JPEG)
 	}
 
-	let { element, onCopy, onError }: Props = $props();
+	let {
+		element,
+		onCopy,
+		onError,
+		scale = defaultImageConfig.scale,
+		format = defaultImageConfig.format,
+		quality = defaultImageConfig.quality
+	}: Props = $props();
 
 	let running = $state<boolean>(false);
 
 	async function getImage(output: HTMLElement): Promise<Blob> {
-		const scale = 3;
 		const width = output.offsetWidth;
 		const height = output.offsetHeight;
 
-		return domtoimage.toBlob(output, {
+		const options: Parameters<typeof domtoimage.toBlob>[1] = {
 			width: width * scale,
 			height: height * scale,
 			style: {
@@ -27,7 +38,15 @@
 				width: `${width}px`,
 				height: `${height}px`
 			}
-		});
+		};
+
+		// Add format and quality options for JPEG
+		if (format === 'jpeg') {
+			options.format = 'jpeg';
+			options.quality = Math.max(0, Math.min(1, quality));
+		}
+
+		return domtoimage.toBlob(output, options);
 	}
 
 	async function execute(): Promise<void> {
@@ -39,9 +58,12 @@
 		const start = performance.now();
 		running = true;
 		try {
+			const imageBlob = await getImage(output);
+			const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+
 			await navigator.clipboard.write([
 				new ClipboardItem({
-					'image/png': getImage(output)
+					[mimeType]: imageBlob
 				})
 			]);
 
