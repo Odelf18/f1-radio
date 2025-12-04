@@ -22,8 +22,6 @@
 	},
 	"dependencies": {
 		"dom-to-image": "^2.6.0",
-		"posthog-js": "^1.279.3",
-		"posthog-node": "^5.10.3",
 		"tailwind-merge": "^1.14.0"
 	},
 	"devDependencies": {

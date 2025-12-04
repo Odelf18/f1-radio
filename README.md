@@ -40,19 +40,9 @@ This project is configured to deploy on Vercel using the SvelteKit adapter.
    - Output Directory: `.svelte-kit/vercel/output` (auto-detected)
    - Install Command: `pnpm install` (auto-detected)
 
-3. **Set environment variables (optional):**
-   - `PUBLIC_POSTHOG_KEY`: Your PostHog API key (optional, for analytics)
-   - If not set, the app will work without analytics
-
-4. **Deploy:**
+3. **Deploy:**
    - Click "Deploy"
    - Vercel will automatically build and deploy your application
-
-### Environment Variables
-
-The following environment variables can be configured in Vercel:
-
-- `PUBLIC_POSTHOG_KEY` (optional): PostHog API key for analytics. If not provided, the app will work without analytics.
 
 ### Manual Deployment
 

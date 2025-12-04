@@ -15,7 +15,6 @@
 	import type { Attachment } from 'svelte/attachments';
 	import type { FormEventHandler } from 'svelte/elements';
 	import type { PageData } from './$types';
-	import posthog from 'posthog-js';
 
 	interface Props {
 		data: PageData;
@@ -115,20 +114,11 @@
 	}
 
 	function onCopy(duration: number) {
-		const url = new URL(page.url);
-		const { searchParams } = url;
-
-		posthog.capture('copy_button.success', {
-			driver: searchParams.get('d'),
-			messages: searchParams.getAll('m'),
-			duration: duration
-		});
+		// Analytics removed
 	}
 
 	function onError(error: unknown, duration: number) {
-		posthog.captureException(error, {
-			duration: duration
-		});
+		// Error tracking removed
 	}
 </script>
 
